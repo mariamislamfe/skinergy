@@ -39,3 +39,14 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# database
+/prisma/*.db
+/prisma/*.db-journal
+public/uploads/*
+!public/uploads/.gitkeep
+
+# python inference service — local virtual env only, not source
+inference/.venv/
+inference/__pycache__/
+inference/**/__pycache__/
