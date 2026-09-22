@@ -1,0 +1,208 @@
+// Skinergy data model
+// User -> Patient -> BurnCase -> Scan -> Assessment
+// BurnCase -> Conversation -> Message
+// BurnCase -> Note, FollowUp
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  PATIENT
+  DOCTOR
+  NURSE
+  ADMIN
+}
+
+enum AppMode {
+  PERSONAL
+  HEALTHCARE
+}
+
+enum RiskStatus {
+  MONITORING
+  FOLLOW_UP
+  ATTENTION
+}
+
+enum FollowUpStatus {
+  SCHEDULED
+  DONE
+  MISSED
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(PATIENT)
+  defaultMode  AppMode  @default(PERSONAL)
+  avatarColor  String   @default("#0EA5A4")
+  createdAt    DateTime @default(now())
+
+  patients      Patient[]      @relation("ManagedPatients")
+  ownPatient    Patient?       @relation("SelfPatient")
+  notes         Note[]
+  familyLinks   FamilyMember[] @relation("FamilyOfUser")
+  notifications Notification[]
+  devices       Device[]
+}
+
+model Patient {
+  id             String   @id @default(cuid())
+  patientCode    String   @unique
+  name           String
+  age            Int?
+  sex            String?
+  phone          String?
+  email          String?
+  emergencyName  String?
+  emergencyPhone String?
+  avatarColor    String   @default("#2563EB")
+  archived       Boolean  @default(false)
+  createdAt      DateTime @default(now())
+
+  managedBy  User[]  @relation("ManagedPatients")
+  selfUser   User?   @relation("SelfPatient", fields: [selfUserId], references: [id])
+  selfUserId String? @unique
+
+  burnCases     BurnCase[]
+  familyMembers FamilyMember[]
+}
+
+model BurnCase {
+  id           String     @id @default(cuid())
+  caseNumber   String
+  patientId    String
+  patient      Patient    @relation(fields: [patientId], references: [id])
+  bodyLocation String
+  degree       String?
+  status       RiskStatus @default(MONITORING)
+  cause        String?
+  openedAt     DateTime   @default(now())
+  closedAt     DateTime?
+
+  scans         Scan[]
+  conversations Conversation[]
+  notes         Note[]
+  followUps     FollowUp[]
+}
+
+model Scan {
+  id           String   @id @default(cuid())
+  burnCaseId   String
+  burnCase     BurnCase @relation(fields: [burnCaseId], references: [id])
+  label        String
+  imageUrl     String?
+  temperatureC Float?
+  moistureIdx  Float?
+  rednessIdx   Float?
+  areaCm2      Float?
+  deviceId     String?
+  capturedAt   DateTime @default(now())
+
+  assessment Assessment?
+}
+
+model Assessment {
+  id         String     @id @default(cuid())
+  scanId     String     @unique
+  scan       Scan       @relation(fields: [scanId], references: [id])
+  severity   RiskStatus @default(MONITORING)
+  burnDegree String? // e.g. "1st Degree", "2nd Degree", "3rd Degree" — from image classification
+  thickness  String? // e.g. "Partial Thickness", "Full Thickness"
+  confidence Float? // classifier confidence 0-100
+  summary    String
+  aiSummary  String?
+  changeFlag Boolean    @default(false)
+  createdAt  DateTime   @default(now())
+}
+
+model Conversation {
+  id         String   @id @default(cuid())
+  burnCaseId String
+  burnCase   BurnCase @relation(fields: [burnCaseId], references: [id])
+  title      String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  messages Message[]
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  role           String
+  content        String
+  createdAt      DateTime     @default(now())
+}
+
+model Note {
+  id         String   @id @default(cuid())
+  burnCaseId String
+  burnCase   BurnCase @relation(fields: [burnCaseId], references: [id])
+  authorId   String?
+  author     User?    @relation(fields: [authorId], references: [id])
+  authorName String
+  content    String
+  createdAt  DateTime @default(now())
+}
+
+model FollowUp {
+  id         String         @id @default(cuid())
+  burnCaseId String
+  burnCase   BurnCase       @relation(fields: [burnCaseId], references: [id])
+  dueAt      DateTime
+  status     FollowUpStatus @default(SCHEDULED)
+  note       String?
+  createdAt  DateTime       @default(now())
+}
+
+model FamilyMember {
+  id                String   @id @default(cuid())
+  patientId         String
+  patient           Patient  @relation(fields: [patientId], references: [id])
+  userId            String?
+  user              User?    @relation("FamilyOfUser", fields: [userId], references: [id])
+  name              String
+  relation          String
+  phone             String?
+  notifyOnNewScan   Boolean  @default(true)
+  notifyOnFollowUp  Boolean  @default(true)
+  notifyOnAttention Boolean  @default(true)
+  invitedAt         DateTime @default(now())
+  accepted          Boolean  @default(false)
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  type      String
+  title     String
+  body      String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Device {
+  id            String    @id @default(cuid())
+  ownerId       String?
+  owner         User?     @relation(fields: [ownerId], references: [id])
+  name          String
+  serial        String    @unique
+  status        String    @default("disconnected")
+  connection    String    @default("wifi")
+  battery       Int       @default(100)
+  signal        String    @default("Good")
+  ipAddress     String    @default("192.168.4.1")
+  lastConnected DateTime?
+  createdAt     DateTime  @default(now())
+}
