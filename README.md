@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Skinergy
 
-## Getting Started
+A burn monitoring platform: patient/burn-case management, AI-assisted scan
+classification, device connection flow, and a chat assistant, for both
+personal and healthcare use.
 
-First, run the development server:
+## First-time setup
+
+Environment files (`.env`) and the local database (`prisma/dev.db`) are not
+committed to git — you need to create them on any machine you run this on.
 
 ```bash
+npm install
+
+# 1. Create your local env file
+cp .env.example .env
+
+# 2. Create the database tables
+npx prisma db push
+
+# 3. Seed demo data (patients, cases, scans, staff accounts)
+npm run db:seed
+
+# 4. Run the app
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000). Demo logins (password
+`password123` for all): `ahmed@skinergy.health` (patient),
+`dr.laila@skinergy.health` (doctor), `nurse.omar@skinergy.health` (nurse).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+If login fails with no error, it's almost always because step 2 or 3 above
+was skipped — there's no database yet, so there are no users to log in as.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## AI burn classification service (optional)
 
-## Learn More
+Real photo classification uses a local Python inference service. Without it
+running, scans still work — they fall back to a simulated classification.
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+python -m venv inference/.venv
+inference/.venv/Scripts/pip install -r inference/requirements.txt
+npm run inference
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+See `inference/README.md` for details and known assumptions about the model.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Deploying beyond your own machine
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+SQLite (`prisma/dev.db`) is a local file — it works for local development but
+not for serverless hosts (e.g. Vercel), which don't have persistent disk. To
+deploy, switch `prisma/schema.prisma`'s datasource to a hosted Postgres
+database (Supabase, Neon, Railway, etc.), update `DATABASE_URL` in your host's
+environment variables, then run `npx prisma db push` against it once.
