@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
@@ -13,35 +12,21 @@ export function AppShell({
   userRole,
   avatarColor,
   unreadCount,
-  defaultMode,
 }: {
   children: React.ReactNode;
   userName: string;
   userRole: string;
   avatarColor: string;
   unreadCount: number;
-  defaultMode: "PERSONAL" | "HEALTHCARE";
 }) {
   const mobileNavOpen = useAppStore((s) => s.mobileNavOpen);
   const setMobileNavOpen = useAppStore((s) => s.setMobileNavOpen);
-  const setMode = useAppStore((s) => s.setMode);
   const pathname = usePathname();
-
-  // Always sync to the logged-in user's role-appropriate mode on a fresh
-  // page load. AppShell doesn't remount on client-side navigation within
-  // the (app) group, so the manual toggle still works fine during a
-  // session — this only re-anchors on hard reloads / new logins, which
-  // matters on a shared browser where a previous user's choice could
-  // otherwise leak into the next login via persisted state.
-  useEffect(() => {
-    setMode(defaultMode);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       <aside className="no-print hidden w-64 shrink-0 border-r border-[var(--border)] bg-[var(--surface)] lg:block">
-        <Sidebar />
+        <Sidebar role={userRole} />
       </aside>
 
       <div
@@ -63,7 +48,7 @@ export function AppShell({
             mobileNavOpen ? "translate-x-0" : "-translate-x-full"
           )}
         >
-          <Sidebar onNavigate={() => setMobileNavOpen(false)} />
+          <Sidebar role={userRole} onNavigate={() => setMobileNavOpen(false)} />
         </div>
       </div>
 

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { auth } from "@/lib/auth";
+import { requirePersonalRole } from "@/lib/access";
 import { getSelfPatient, getAllScansForPatient } from "@/lib/data/personal";
 import { Card, CardContent } from "@/components/ui/Card";
 import { StatusBadge, ChangeDetectedBadge } from "@/components/ui/StatusBadge";
@@ -12,6 +13,7 @@ import type { RiskStatus } from "@/components/ui/StatusBadge";
 export default async function HistoryPage() {
   const session = await auth();
   if (!session?.user) return null;
+  requirePersonalRole(session.user.role);
 
   const patient = await getSelfPatient(session.user.id);
   const scans = patient ? await getAllScansForPatient(patient.id) : [];

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { auth } from "@/lib/auth";
+import { requireHealthcareRole } from "@/lib/access";
 import { getDashboardData } from "@/lib/data/dashboard";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
@@ -22,6 +23,7 @@ import type { RiskStatus } from "@/components/ui/StatusBadge";
 export default async function DashboardPage() {
   const session = await auth();
   if (!session?.user) return null;
+  requireHealthcareRole(session.user.role);
 
   const data = await getDashboardData(session.user.id, session.user.role);
 

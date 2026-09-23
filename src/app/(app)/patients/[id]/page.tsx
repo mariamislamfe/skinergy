@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { assertPatientAccess } from "@/lib/access";
+import { assertPatientAccess, requireHealthcareRole } from "@/lib/access";
 import { Avatar } from "@/components/ui/Avatar";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
@@ -19,6 +19,7 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
   const { id } = await params;
   const session = await auth();
   if (!session?.user) notFound();
+  requireHealthcareRole(session.user.role);
 
   const patient = await assertPatientAccess(session.user.id, session.user.role, id);
   if (!patient) notFound();

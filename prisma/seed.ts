@@ -44,17 +44,6 @@ async function main() {
     },
   });
 
-  const nurseOmar = await prisma.user.create({
-    data: {
-      name: "Omar Farid",
-      email: "nurse.omar@skinergy.health",
-      passwordHash,
-      role: "NURSE",
-      defaultMode: "HEALTHCARE",
-      avatarColor: "#b3475b",
-    },
-  });
-
   await prisma.user.create({
     data: {
       name: "Admin",
@@ -90,7 +79,7 @@ async function main() {
       emergencyPhone: "+20 100 987 6543",
       avatarColor: "#9a2c40",
       selfUserId: ahmedUser.id,
-      managedBy: { connect: [{ id: drLaila.id }, { id: nurseOmar.id }] },
+      managedBy: { connect: [{ id: drLaila.id }] },
     },
   });
 
@@ -351,7 +340,7 @@ async function main() {
         emergencyName: "Emergency Contact",
         emergencyPhone: "+20 11" + Math.floor(10000000 + Math.random() * 89999999),
         avatarColor: ["#9a2c40", "#c65a6e", "#7a2333", "#b3475b", "#5e1a27"][dayOffset % 5],
-        managedBy: { connect: [{ id: drLaila.id }, { id: nurseOmar.id }] },
+        managedBy: { connect: [{ id: drLaila.id }] },
       },
     });
 
@@ -480,7 +469,6 @@ async function main() {
   console.log("Demo logins (password: password123):");
   console.log("  Personal: ahmed@skinergy.health");
   console.log("  Doctor:   dr.laila@skinergy.health");
-  console.log("  Nurse:    nurse.omar@skinergy.health");
   console.log("  Admin:    admin@skinergy.health");
 }
 

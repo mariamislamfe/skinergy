@@ -1,7 +1,21 @@
+import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
 export function isHealthcareRole(role: string) {
-  return role === "DOCTOR" || role === "NURSE" || role === "ADMIN";
+  return role === "DOCTOR" || role === "ADMIN";
+}
+
+/** Call at the top of any healthcare-only page (dashboard, patients,
+ * reports, ...). Patients get redirected to their personal home instead
+ * of ever seeing healthcare-only data or UI. */
+export function requireHealthcareRole(role: string): void {
+  if (!isHealthcareRole(role)) redirect("/home");
+}
+
+/** Call at the top of any personal-only page (home, my-burn, history,
+ * ...). Healthcare staff get redirected to their dashboard instead. */
+export function requirePersonalRole(role: string): void {
+  if (isHealthcareRole(role)) redirect("/dashboard");
 }
 
 /**

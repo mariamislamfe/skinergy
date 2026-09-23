@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { auth } from "@/lib/auth";
+import { requireHealthcareRole } from "@/lib/access";
 import { getPatientSummaries } from "@/lib/data/patients";
 import { PatientCard } from "@/components/patients/PatientCard";
 import { PatientSearchBar } from "@/components/patients/PatientSearchBar";
@@ -8,11 +9,15 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { CardSkeleton } from "@/components/ui/Skeleton";
 import { Users } from "lucide-react";
 
-export default function PatientsPage({
+export default async function PatientsPage({
   searchParams,
 }: {
   searchParams: Promise<{ q?: string; archived?: string }>;
 }) {
+  const session = await auth();
+  if (!session?.user) return null;
+  requireHealthcareRole(session.user.role);
+
   return (
     <div className="animate-fade-in">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

@@ -6,13 +6,13 @@ import { Flame, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { personalNav, healthcareNav } from "./nav-config";
 import { useAppStore } from "@/store/app-store";
-import { ModeSwitcher } from "./ModeSwitcher";
 
-export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
+const HEALTHCARE_ROLES = new Set(["DOCTOR", "ADMIN"]);
+
+export function Sidebar({ role, onNavigate }: { role: string; onNavigate?: () => void }) {
   const pathname = usePathname();
-  const mode = useAppStore((s) => s.mode);
   const setMobileNavOpen = useAppStore((s) => s.setMobileNavOpen);
-  const items = mode === "PERSONAL" ? personalNav : healthcareNav;
+  const items = HEALTHCARE_ROLES.has(role) ? healthcareNav : personalNav;
 
   return (
     <div className="flex h-full flex-col">
@@ -31,11 +31,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
         </button>
       </div>
 
-      <div className="px-5 pb-4">
-        <ModeSwitcher />
-      </div>
-
-      <nav className="flex-1 space-y-1 px-3">
+      <nav className="flex-1 space-y-1 px-3 pt-2">
         {items.map((item) => {
           const active = pathname === item.href || pathname.startsWith(item.href + "/");
           const Icon = item.icon;
