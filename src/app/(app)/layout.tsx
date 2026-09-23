@@ -11,16 +11,12 @@ export default async function AppGroupLayout({ children }: { children: React.Rea
     where: { userId: session.user.id, read: false },
   });
 
-  const isHealthcare =
-    session.user.role === "DOCTOR" || session.user.role === "NURSE" || session.user.role === "ADMIN";
-
   return (
     <AppShell
       userName={session.user.name ?? "User"}
       userRole={session.user.role}
       avatarColor={session.user.avatarColor}
       unreadCount={unreadCount}
-      defaultMode={isHealthcare ? "HEALTHCARE" : "PERSONAL"}
     >
       {children}
     </AppShell>

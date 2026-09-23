@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth";
+import { requirePersonalRole } from "@/lib/access";
 import { getSelfPatient } from "@/lib/data/personal";
 import { BurnCaseCard } from "@/components/cases/BurnCaseCard";
 import { NewCaseDialog } from "@/components/cases/NewCaseDialog";
@@ -9,6 +10,7 @@ import type { RiskStatus } from "@/components/ui/StatusBadge";
 export default async function MyBurnPage() {
   const session = await auth();
   if (!session?.user) return null;
+  requirePersonalRole(session.user.role);
 
   const patient = await getSelfPatient(session.user.id);
 

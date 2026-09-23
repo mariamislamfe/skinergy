@@ -121,7 +121,6 @@ function LoginForm() {
             <div className="flex flex-col gap-1.5">
               <DemoButton onClick={() => fillDemo("ahmed@skinergy.health")} label="Ahmed Hassan" role="Personal patient" />
               <DemoButton onClick={() => fillDemo("dr.laila@skinergy.health")} label="Dr. Laila Mostafa" role="Doctor" />
-              <DemoButton onClick={() => fillDemo("nurse.omar@skinergy.health")} label="Omar Farid" role="Nurse" />
             </div>
             <p className="mt-2.5 text-[11px] text-[var(--muted)]">Password: password123</p>
           </div>

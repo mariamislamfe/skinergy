@@ -24,6 +24,8 @@ export const personalNav: NavItem[] = [
   { label: "My Burn", href: "/my-burn", icon: Flame },
   { label: "AI Assistant", href: "/chat", icon: MessageCircle },
   { label: "History", href: "/history", icon: History },
+  { label: "Device", href: "/devices", icon: Cpu },
+  { label: "Reports", href: "/reports", icon: FileText },
   { label: "Profile", href: "/profile", icon: User },
 ];
 

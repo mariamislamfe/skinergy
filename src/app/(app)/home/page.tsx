@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { auth } from "@/lib/auth";
+import { requirePersonalRole } from "@/lib/access";
 import { getSelfPatient } from "@/lib/data/personal";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -13,6 +14,7 @@ import type { RiskStatus } from "@/components/ui/StatusBadge";
 export default async function HomePage() {
   const session = await auth();
   if (!session?.user) return null;
+  requirePersonalRole(session.user.role);
 
   const patient = await getSelfPatient(session.user.id);
   const activeCases = patient?.burnCases.filter((c) => !c.closedAt) ?? [];
