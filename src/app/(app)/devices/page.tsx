@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { DeviceCard } from "@/components/devices/DeviceCard";
+import { LiveMonitor } from "@/components/devices/LiveMonitor";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Cpu } from "lucide-react";
 
@@ -11,12 +12,18 @@ export default async function DevicesPage() {
   const devices = await prisma.device.findMany({ orderBy: { createdAt: "asc" } });
   const mine = devices.filter((d) => d.ownerId === session.user.id);
   const available = devices.filter((d) => d.ownerId !== session.user.id);
+  const monitorIp = mine[0]?.ipAddress ?? devices[0]?.ipAddress ?? "192.168.4.1";
 
   return (
     <div className="animate-fade-in space-y-8">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Device</h1>
         <p className="mt-1 text-sm text-[var(--muted)]">Manage your Skinergy scanning device.</p>
+      </div>
+
+      <div>
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--muted)]">Live Monitor</h2>
+        <LiveMonitor ipAddress={monitorIp} />
       </div>
 
       <div>
