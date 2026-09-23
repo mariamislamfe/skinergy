@@ -8,8 +8,12 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  // Pooled (pgbouncer) connection — used by the running app.
+  url       = env("DATABASE_URL")
+  // Direct, non-pooled connection — used for schema changes (db push /
+  // migrate), since pgbouncer's transaction mode can't run DDL reliably.
+  directUrl = env("DIRECT_URL")
 }
 
 enum Role {
