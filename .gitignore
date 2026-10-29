@@ -51,3 +51,10 @@ public/uploads/*
 inference/.venv/
 inference/__pycache__/
 inference/**/__pycache__/
+
+# Private / local files
+.env
+.env*.local
+CLAUDE.md
+AGENTS.md
+.claude/
